@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const client = await clientPromise;
     const db = client.db("japymenu");
     const collection = db.collection("orders");
@@ -33,7 +33,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const { menuItem } = await request.json();
 
     if (!menuItem) {
@@ -85,7 +85,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const { data } = await request.json();
 
     if (!data) {

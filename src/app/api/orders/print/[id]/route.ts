@@ -5,7 +5,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
 
     console.log('PRINT', id)
     return NextResponse.json({
