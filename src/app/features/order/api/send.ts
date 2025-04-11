@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Order } from "@/types/order";
+import omit from "lodash/omit";
 
 export const send = (
   id: string,
@@ -9,7 +10,10 @@ export const send = (
     url: `/api/orders/${id}`,
     method: "POST",
     data: {
-      data: order,
+      data: {
+        ...order,
+        elements: order.elements?.map((item) => omit(item, ["recentlyAdded"])),
+      },
     },
   }).then((r) => r.data);
 };

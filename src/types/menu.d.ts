@@ -7,4 +7,5 @@ export type Menu = {
   price: number;
   type: string;
   notes?: string;
+  recentlyAdded?: boolean;
 };

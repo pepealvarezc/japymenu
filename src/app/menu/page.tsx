@@ -8,6 +8,7 @@ import {
   Box,
   CardContent,
   Card,
+  CircularProgress,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { getMenu } from "@/app/features/menu/api/get";
@@ -56,47 +57,54 @@ const Home = () => {
         justifyContent="center"
         sx={{ maxHeight: "70vh", overflowY: "auto" }}
       >
-        <Box p={2}>
-          {Object.entries(groupedByCategory).map(([category, items]) => (
-            <Box key={category} mb={4}>
-              <Typography variant="h5" gutterBottom fontWeight="bold">
-                {category}
-              </Typography>
-              <Grid container spacing={2} justifyContent="start">
-                {items.map((item) => (
-                  <Grid size={{ xs: 6 }} key={item._id}>
-                    <Card
-                      sx={{
-                        borderRadius: 2,
-                        boxShadow: 3,
-                        height: "100%",
-                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                        "&:hover": {
-                          transform: "scale(0.98)",
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-                          cursor: "pointer",
-                        },
-                      }}
-                      onClick={() => router.push(`/menu/add/${item._id}`)}
-                    >
-                      <CardContent>
-                        <Typography variant="body1" fontWeight="500">
-                          {item.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Cantidad: {item.quantity}
-                        </Typography>
-                        <Typography variant="h6" color="error" mt={1}>
-                          ${item.price.toFixed(2)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          ))}
-        </Box>
+        {menu.length ? (
+          <Box p={2}>
+            {Object.entries(groupedByCategory).map(([category, items]) => (
+              <Box key={category} mb={4}>
+                <Typography variant="h5" gutterBottom fontWeight="bold">
+                  {category}
+                </Typography>
+                <Grid container spacing={2} justifyContent="start">
+                  {items.map((item) => (
+                    <Grid size={{ xs: 6 }} key={item._id}>
+                      <Card
+                        sx={{
+                          borderRadius: 2,
+                          boxShadow: 3,
+                          height: "100%",
+                          transition:
+                            "transform 0.2s ease, box-shadow 0.2s ease",
+                          "&:hover": {
+                            transform: "scale(0.98)",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                            cursor: "pointer",
+                          },
+                        }}
+                        onClick={() => router.push(`/menu/add/${item._id}`)}
+                      >
+                        <CardContent>
+                          <Typography variant="body1" fontWeight="500">
+                            {item.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Cantidad: {item.quantity}
+                          </Typography>
+                          <Typography variant="h6" color="error" mt={1}>
+                            ${item.price.toFixed(2)}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Box sx={{ display: "flex" }}>
+            <CircularProgress />
+          </Box>
+        )}
       </Grid>
 
       <Grid

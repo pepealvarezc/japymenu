@@ -20,7 +20,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
           <OrderProvider>
-            <Image src={Logo} alt="logo" width={250} />
+            <Image src={Logo} alt="logo" width={100} />
             <CssBaseline />
             {children}
           </OrderProvider>

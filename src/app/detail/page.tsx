@@ -18,7 +18,7 @@ import { getActiveOrders } from "../features/order/api/list";
 import { useEffect } from "react";
 import { Order } from "@/types/order";
 import { useOrder } from "../context/OrderContext";
-import { finishOrder } from "../features/order/api/finish";
+// import { finishOrder } from "../features/order/api/finish";
 
 const Home = () => {
   const router = useRouter();
@@ -36,10 +36,10 @@ const Home = () => {
     handleGetActiveOrders();
   }, []);
 
-  const handleFinishOrder = async (id: string) => {
-    await finishOrder(id);
-    router.push("/");
-  };
+  // const handleFinishOrder = async (id: string) => {
+  //   await finishOrder(id);
+  //   router.push("/");
+  // };
 
   const OrderCard = ({ item, key }: { item: Order; key: string }) => (
     <Paper
@@ -134,16 +134,6 @@ const Home = () => {
             }}
           >
             Agregar artículos
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            fullWidth
-            sx={{ borderRadius: 999, fontWeight: "bold" }}
-            onClick={() => handleFinishOrder(item._id || "")}
-            disabled={!item.active}
-          >
-            Cerrar cuenta
           </Button>
         </Stack>
       </Grid>

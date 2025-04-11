@@ -12,10 +12,15 @@ import {
   Box,
   IconButton,
   Button,
-  Divider,
   Grid,
 } from "@mui/material";
-import { Add, Remove, DeleteOutline, Print } from "@mui/icons-material";
+import {
+  Add,
+  Remove,
+  DeleteOutline,
+  Print,
+  KeyboardReturn,
+} from "@mui/icons-material";
 import { useOrder } from "../context/OrderContext";
 import { send } from "../features/order/api/send";
 import { enqueueSnackbar } from "notistack";
@@ -47,8 +52,8 @@ const OrderItem = ({
         p: 2,
         mb: 2,
         borderRadius: 3,
-        maxHeight: 180,
-        minHeight: 180,
+        maxHeight: 130,
+        minHeight: 130,
         textAlign: "start",
       }}
     >
@@ -58,39 +63,46 @@ const OrderItem = ({
       <Typography variant="body2" color="text.secondary">
         {description}
       </Typography>
-      <Typography variant="h6" fontWeight="bold" mt={1}>
-        ${amount.toFixed(2)}
-      </Typography>
-      <Box
-        mt={2}
-        display="flex"
-        alignItems="center"
-        justifyContent="flex-end"
-        gap={1}
-      >
-        <IconButton
-          onClick={onRemove}
-          sx={{ bgcolor: "#f5f5f5", "&:hover": { bgcolor: "#e0e0e0" } }}
-          disabled={!isActive}
-        >
-          {quantity > 1 ? <Remove /> : <DeleteOutline />}
-        </IconButton>
-        <Typography>{quantity}</Typography>
-        <IconButton
-          onClick={onAdd}
-          sx={{
-            "&:hover": { bgcolor: "error.dark" },
-            borderColor: "rgb(209,15,23)",
-            backgroundColor: "rgb(209,15,23)",
-            color: "white",
-            fontWeight: "bold",
-            textTransform: "none",
-          }}
-          disabled={!isActive}
-        >
-          <Add />
-        </IconButton>
-      </Box>
+      <Grid container direction="row" size={{ xs: 12 }}>
+        <Grid size={{ xs: 8 }}>
+          <Typography variant="h6" fontWeight="bold" mt={1}>
+            ${amount.toFixed(2)}
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 4 }} sx={{ mt: 1 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="flex-end"
+            gap={1}
+          >
+            <IconButton
+              onClick={onRemove}
+              sx={{ bgcolor: "#f5f5f5", "&:hover": { bgcolor: "#e0e0e0" } }}
+              disabled={!isActive}
+              size="small"
+            >
+              {quantity > 1 ? <Remove /> : <DeleteOutline />}
+            </IconButton>
+            <Typography>{quantity}</Typography>
+            <IconButton
+              onClick={onAdd}
+              size="small"
+              sx={{
+                "&:hover": { bgcolor: "error.dark" },
+                borderColor: "rgb(209,15,23)",
+                backgroundColor: "rgb(209,15,23)",
+                color: "white",
+                fontWeight: "bold",
+                textTransform: "none",
+              }}
+              disabled={!isActive}
+            >
+              <Add />
+            </IconButton>
+          </Box>
+        </Grid>
+      </Grid>
     </Paper>
   );
 };
@@ -103,7 +115,20 @@ const OrderSummary = () => {
   if (!order.id) {
     router.push("/");
   }
-  const items = order.elements;
+  const items = (order.elements || []).filter((e) => {
+    if (order.elements?.some((r) => r.recentlyAdded)) {
+      return e.recentlyAdded;
+    }
+    return true;
+  }).map((r) => {
+    if (order.elements?.some((r) => r.recentlyAdded)) {
+      return r;
+    }
+    return {
+      ...r,
+      recentlyAdded: true,
+    };
+  });
 
   if (!items?.length) {
     router.push("/menu");
@@ -112,23 +137,28 @@ const OrderSummary = () => {
   const total = sumBy(items, "price");
 
   const handleAddItem = (itemId: string) => {
-    const item = items?.find((i) => i._id === itemId);
+    const orderItems = items || [];
+    const item = orderItems?.find((i) => i._id === itemId);
     if (item) {
-      items?.push(item);
+      orderItems?.push({
+        ...item,
+        recentlyAdded: true,
+      });
       setOrder({
         ...order,
-        elements: items,
+        elements: orderItems,
       });
     }
   };
 
   const handleDeleteItem = (itemId: string) => {
-    const index = items?.findIndex((item) => item._id === itemId);
+    const orderItems = items || [];
+    const index = orderItems?.findLastIndex((item) => item._id === itemId);
     if (index !== undefined && index !== -1) {
-      items?.splice(index, 1);
+      orderItems?.splice(index, 1);
       setOrder({
         ...order,
-        elements: items,
+        elements: orderItems,
       });
     }
   };
@@ -180,18 +210,6 @@ const OrderSummary = () => {
             />
           );
         })}
-        <Grid container size={{ xs: 12 }} justifyContent="end">
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            sx={{ borderRadius: 999, py: 1.5, fontWeight: "bold", mb: 3 }}
-            onClick={() => router.push("/menu")}
-            disabled={!order.active}
-          >
-            + Agregar
-          </Button>
-        </Grid>
       </Grid>
       <Grid
         size={{ xs: 12 }}
@@ -203,93 +221,129 @@ const OrderSummary = () => {
           backgroundColor: "white",
           zIndex: 1,
           width: "100%",
-          px: 4,
           pt: 2,
         }}
       >
-        {(order.sended && (
-          <Grid container size={{ xs: 12 }} justifyContent="start">
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<Print />}
+        <Grid size={{ xs: 12 }}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 2,
+              borderRadius: 3,
+              textAlign: "start",
+              mb: 4,
+              width: "100%",
+            }}
+          >
+            <Grid container size={{ xs: 12 }}>
+              <Grid size={{ xs: 6 }}>
+                <Typography variant="h6" fontWeight="bold" color="error.main">
+                  Total:
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <Typography variant="h6" fontWeight="bold" textAlign="right">
+                  ${total.toFixed(2)}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction="column" size={{ xs: 12 }}>
+              <Typography variant="body2">
+                Comida:{" "}
+                {order.elements?.filter((i) => i.type === "Comida").length || 0}{" "}
+                platillos
+              </Typography>
+              <Typography variant="body2" mb={1}>
+                Bebidas:{" "}
+                {order.elements?.filter((i) => i.type === "Bebida").length || 0}{" "}
+                bebidas
+              </Typography>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Grid
+          container
+          size={{ xs: 12 }}
+          direction="row"
+          sx={{
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+            <IconButton
+              size="large"
               sx={{
                 borderRadius: 999,
-                py: 1.5,
                 fontWeight: "bold",
-                mb: 3,
-                color: "rgb(209,15,23)",
                 borderColor: "rgb(209,15,23)",
+                backgroundColor: "rgb(209,15,23)",
+                color: "white",
+              }}
+              onClick={() => {
+                if (order.sended) {
+                  return router.push("/");
+                }
+                return router.push("/menu");
+              }}
+            >
+              <KeyboardReturn />
+            </IconButton>
+          </Grid>
+          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+            <IconButton
+              color="error"
+              size="large"
+              sx={{
+                borderRadius: 999,
+                fontWeight: "bold",
+                borderColor: "rgb(209,15,23)",
+                backgroundColor: "rgb(209,15,23)",
+                color: "white",
+              }}
+              onClick={() => router.push("/menu")}
+              disabled={!order.active}
+            >
+              <Add />
+            </IconButton>
+          </Grid>
+          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+            <IconButton
+              size="large"
+              sx={{
+                borderRadius: 999,
+                fontWeight: "bold",
+                borderColor: "rgb(209,15,23)",
+                backgroundColor: "rgb(209,15,23)",
+                color: "white",
               }}
               onClick={() => printOrder(order._id || "")}
             >
-              Re-Imprimir Cuenta
+              <Print />
+            </IconButton>
+          </Grid>
+          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+            <Button
+              variant="contained"
+              size="small"
+              fullWidth
+              sx={{
+                borderColor: "rgb(209,15,23)",
+                backgroundColor: "rgb(209,15,23)",
+                color: "white",
+                borderRadius: 10,
+                padding: 1,
+                minWidth: 100,
+                fontWeight: "bold",
+                fontSize: "18px",
+                textTransform: "none",
+              }}
+              disabled={!order?.elements?.length || !order.active}
+              onClick={handleSendOrder}
+            >
+              Enviar
             </Button>
           </Grid>
-        )) ||
-          null}
-        <Paper
-          elevation={2}
-          sx={{ p: 2, borderRadius: 3, textAlign: "start", mb: 4 }}
-        >
-          <Typography fontWeight="bold" color="error.main">
-            Total:
-          </Typography>
-          <Typography variant="body2">
-            Comida: {items?.filter((i) => i.type === "Comida").length || 0}{" "}
-            platillos
-          </Typography>
-          <Typography variant="body2" mb={1}>
-            Bebidas: {items?.filter((i) => i.type === "Bebida").length || 0}{" "}
-            bebidas
-          </Typography>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="h6" fontWeight="bold" textAlign="right">
-            ${total.toFixed(2)}
-          </Typography>
-        </Paper>
-        <Grid size={{ xs: 12 }}>
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              borderColor: "rgb(209,15,23)",
-              backgroundColor: "rgb(209,15,23)",
-              color: "white",
-              borderRadius: 20,
-              padding: 2,
-              fontWeight: "bold",
-              fontSize: "18px",
-              textTransform: "none",
-            }}
-            disabled={!order?.elements?.length}
-            onClick={handleSendOrder}
-          >
-            Enviar Orden
-          </Button>
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              mt: 2,
-              borderColor: "rgb(209,15,23)",
-              color: "rgb(209,15,23)",
-              backgroundColor: "#fff",
-              borderRadius: 20,
-              padding: 2,
-              fontWeight: "bold",
-              fontSize: "18px",
-              textTransform: "none",
-            }}
-            onClick={() => {
-              if (order.sended) {
-                return router.push("/");
-              }
-              return router.push("/menu");
-            }}
-          >
-            Regresar
-          </Button>
         </Grid>
       </Grid>
     </Box>

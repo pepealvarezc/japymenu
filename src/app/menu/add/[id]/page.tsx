@@ -1,12 +1,19 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { Grid, Button, Paper, Typography, Box, TextField } from "@mui/material";
+import {
+  Grid,
+  Button,
+  Paper,
+  Typography,
+  Box,
+  TextField,
+  CircularProgress,
+} from "@mui/material";
 import { getMenuItem } from "@/app/features/menu/api/getById";
 import { useEffect, useState } from "react";
 import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
-import { addItem } from "@/app/features/order/api/add-item";
 
 const Page = () => {
   const router = useRouter();
@@ -41,8 +48,10 @@ const Page = () => {
   const handleAddItem = async () => {
     const items: Menu[] = order?.elements || [];
     if (element) {
-      setOrder({ ...order, elements: [...items, { ...element, notes }] });
-      await addItem(order.id || "", { ...element, notes });
+      setOrder({
+        ...order,
+        elements: [...items, { ...element, notes, recentlyAdded: true }],
+      });
       router.push("/menu");
     }
   };
@@ -56,43 +65,49 @@ const Page = () => {
       alignItems="center"
       sx={{ minHeight: "70vh", position: "relative" }}
     >
-      <Grid container size={{ xs: 12 }}>
-        <Paper
-          elevation={2}
-          sx={{ p: 2, borderRadius: 3, minWidth: "100%", textAlign: "start" }}
-        >
-          <Typography variant="subtitle1" fontWeight="bold">
-            {element?.name}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Cantidad:{" "}
-            <span style={{ fontWeight: 500 }}>{element?.quantity}</span>
-          </Typography>
-          <Typography variant="h6" color="error" sx={{ mt: 1 }}>
-            ${element?.price}
-          </Typography>
-
-          <Box mt={2}>
-            <Typography variant="body2" gutterBottom>
-              Notas:
+      {element ? (
+        <Grid container size={{ xs: 12 }}>
+          <Paper
+            elevation={2}
+            sx={{ p: 2, borderRadius: 3, minWidth: "100%", textAlign: "start" }}
+          >
+            <Typography variant="subtitle1" fontWeight="bold">
+              {element?.name}
             </Typography>
-            <TextField
-              fullWidth
-              multiline
-              minRows={3}
-              placeholder="Escribe tus notas..."
-              variant="outlined"
-              InputProps={{
-                sx: {
-                  backgroundColor: "#fafafa",
-                  borderRadius: 2,
-                },
-              }}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-          </Box>
-        </Paper>
-      </Grid>
+            <Typography variant="body2" color="text.secondary">
+              Cantidad:{" "}
+              <span style={{ fontWeight: 500 }}>{element?.quantity}</span>
+            </Typography>
+            <Typography variant="h6" color="error" sx={{ mt: 1 }}>
+              ${element?.price}
+            </Typography>
+
+            <Box mt={2}>
+              <Typography variant="body2" gutterBottom>
+                Notas:
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                placeholder="Escribe tus notas..."
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    backgroundColor: "#fafafa",
+                    borderRadius: 2,
+                  },
+                }}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </Box>
+          </Paper>
+        </Grid>
+      ) : (
+        <Box sx={{ display: "flex" }}>
+          <CircularProgress />
+        </Box>
+      )}
       <Grid
         size={{ xs: 12 }}
         sx={{
