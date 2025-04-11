@@ -1,0 +1,137 @@
+"use client";
+
+import { useRouter, useParams } from "next/navigation";
+import { Grid, Button, Paper, Typography, Box, TextField } from "@mui/material";
+import { getMenuItem } from "@/app/features/menu/api/getById";
+import { useEffect, useState } from "react";
+import { Menu } from "@/types/menu";
+import { useOrder } from "@/app/context/OrderContext";
+import { addItem } from "@/app/features/order/api/add-item";
+
+const Page = () => {
+  const router = useRouter();
+  const { id } = useParams();
+  const [notes, setNotes] = useState("");
+  const { order, setOrder } = useOrder();
+
+  const [element, setElement] = useState<Menu>();
+
+  if (!id) {
+    router.push("/menu");
+  }
+
+  if (!order.id) {
+    router.push("/");
+  }
+
+  const handleGetElement = async () => {
+    const response = await getMenuItem(String(id)).catch(() => null);
+
+    if (response) {
+      setElement(response.result);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      handleGetElement();
+    }
+  }, [id]);
+
+  const handleAddItem = async () => {
+    const items: Menu[] = order?.elements || [];
+    if (element) {
+      setOrder({ ...order, elements: [...items, { ...element, notes }] });
+      await addItem(order.id || "", { ...element, notes });
+      router.push("/menu");
+    }
+  };
+
+  return (
+    <Grid
+      container
+      spacing={5}
+      direction="column"
+      justifyContent="center"
+      alignItems="center"
+      sx={{ minHeight: "70vh" }}
+    >
+      <Grid container size={{ xs: 12 }}>
+        <Paper
+          elevation={2}
+          sx={{ p: 2, borderRadius: 3, minWidth: "100%", textAlign: "start" }}
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
+            {element?.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Cantidad:{" "}
+            <span style={{ fontWeight: 500 }}>{element?.quantity}</span>
+          </Typography>
+          <Typography variant="h6" color="error" sx={{ mt: 1 }}>
+            ${element?.price}
+          </Typography>
+
+          <Box mt={2}>
+            <Typography variant="body2" gutterBottom>
+              Notas:
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              placeholder="Escribe tus notas..."
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  backgroundColor: "#fafafa",
+                  borderRadius: 2,
+                },
+              }}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </Box>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{
+            borderColor: "rgb(209,15,23)",
+            backgroundColor: "rgb(209,15,23)",
+            color: "white",
+            borderRadius: 20,
+            padding: 2,
+            fontWeight: "bold",
+            fontSize: "18px",
+            textTransform: "none",
+          }}
+          onClick={handleAddItem}
+        >
+          Agregar
+        </Button>
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{
+            mt: 2,
+            borderColor: "1px solid rgb(209,15,23)",
+            backgroundColor: "#fff",
+            color: "rgb(209,15,23)",
+            borderRadius: 20,
+            padding: 2,
+            fontWeight: "bold",
+            fontSize: "18px",
+            textTransform: "none",
+          }}
+          onClick={() => router.push("/menu")}
+        >
+          Cancelar
+        </Button>
+      </Grid>
+    </Grid>
+  );
+};
+
+export default Page;
