@@ -1,13 +1,16 @@
 import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+type ContextParams = {
+  params: {
+    id: string;
+  };
+};
+
+export async function POST(request: NextRequest, context: ContextParams) {
   try {
     const { id } = context.params;
 
-    console.log('PRINT', id)
+    console.log("PRINT", id);
     return NextResponse.json({
       success: true,
       message: "Order Finished",

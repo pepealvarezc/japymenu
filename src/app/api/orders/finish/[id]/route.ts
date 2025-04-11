@@ -2,10 +2,13 @@ import { NextResponse, NextRequest } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+type ContextParams = {
+  params: {
+    id: string;
+  };
+};
+
+export async function POST(request: NextRequest, context: ContextParams) {
   try {
     const { id } = context.params;
 
