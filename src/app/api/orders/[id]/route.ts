@@ -2,15 +2,12 @@ import { NextResponse, NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
 import clientPromise from "@/lib/mongodb"; // Ajusta la ruta según tengas configurado tu cliente
 
-type ContextParams = {
-  params: {
-    id: string;
-  };
-};
-
-export async function GET(request: NextRequest, context: ContextParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = context.params;
+    const id = (await params).id;
     const client = await clientPromise;
     const db = client.db("japymenu");
     const collection = db.collection("orders");
@@ -31,9 +28,12 @@ export async function GET(request: NextRequest, context: ContextParams) {
   }
 }
 
-export async function PUT(request: NextRequest, context: ContextParams) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = context.params;
+    const id = (await params).id;
     const { menuItem } = await request.json();
 
     if (!menuItem) {
@@ -80,9 +80,12 @@ export async function PUT(request: NextRequest, context: ContextParams) {
   }
 }
 
-export async function POST(request: NextRequest, context: ContextParams) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = context.params;
+    const id = (await params).id;
     const { data } = await request.json();
 
     if (!data) {

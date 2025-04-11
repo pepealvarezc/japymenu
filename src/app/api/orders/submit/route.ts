@@ -1,14 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
 
-type ContextParams = {
-  params: {
-    id: string;
-  };
-};
-
-export async function POST(request: NextRequest, context: ContextParams) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = context.params;
+    const id = (await params).id;
 
     console.log("IMPRESION", id);
   } catch (error) {
