@@ -35,7 +35,7 @@ const Home = () => {
         notes: order.notes,
       });
 
-      setOrder({ ...order, id: response.id });
+      setOrder({ ...order, id: response.id, active: true });
       router.push("/menu");
     }
   };

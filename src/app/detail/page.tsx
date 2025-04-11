@@ -158,7 +158,16 @@ const Home = () => {
           sx={{ minHeight: "60vh", maxHeight: "70vh", overflowY: "auto" }}
         >
           {orders
-            .sort((a, b) => (a.active === b.active ? 0 : a.active ? -1 : 1))
+            .sort((a, b) => {
+              if (a.active !== b.active) {
+                return a.active ? -1 : 1;
+              }
+
+              return (
+                new Date(b.createdAt || "").getTime() -
+                new Date(a.createdAt || "").getTime()
+              );
+            })
             .map((order) => (
               <OrderCard item={order as Order} key={order._id || ""} />
             ))}
