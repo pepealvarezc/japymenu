@@ -27,9 +27,8 @@ export async function GET() {
     const collection = db.collection("orders");
 
     const result = await collection
-      .find({
-        active: true,
-      })
+      .find()
+      .sort('-createdAt')
       .toArray();
     return NextResponse.json({ success: true, result });
   } catch (error) {

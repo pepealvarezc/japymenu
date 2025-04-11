@@ -67,7 +67,6 @@ const Home = () => {
             fontSize: "18px",
             textTransform: "none",
           }}
-          disabled={!activeOrders}
           onClick={() => router.push("/detail")}
         >
           {`Ver Ordenes ${activeOrders ? `(${activeOrders})` : ""}`}

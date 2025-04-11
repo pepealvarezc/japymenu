@@ -12,6 +12,7 @@ import {
   Stack,
   Box,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import { getActiveOrders } from "../features/order/api/list";
 import { useEffect } from "react";
@@ -49,24 +50,30 @@ const Home = () => {
         borderRadius: 3,
         width: "90%",
         textAlign: "start",
-        maxHeight: "40vh",
+        maxHeight: "50vh",
+        overflowY: "auto",
       }}
     >
       <Grid size={{ xs: 12 }}>
         <Stack spacing={0.5}>
           <Box display="flex" justifyContent="flex-end" mt={1}>
             <Chip
-              label="Abierta"
+              label={item.active ? "Abierta" : "Cerrada"}
               size="small"
               sx={{
                 fontWeight: "bold",
                 borderRadius: "12px",
-                backgroundColor: "rgb(61,162,44)",
+                backgroundColor: item.active
+                  ? "rgb(61,162,44)"
+                  : "rgb(209,15,23)",
                 color: "#fff",
                 minWidth: 100,
               }}
             />
           </Box>
+          <Typography fontWeight="bold" fontSize={16}>
+            {`No. M${item.table}-${(item._id || "").slice(-4).toUpperCase()}`}
+          </Typography>
           <Typography variant="body2">
             Atiende: <strong>{item?.name}</strong>
           </Typography>
@@ -117,6 +124,7 @@ const Home = () => {
             color="error"
             fullWidth
             sx={{ borderRadius: 999, fontWeight: "bold" }}
+            disabled={!item.active}
             onClick={() => {
               setOrder({
                 id: item._id,
@@ -133,6 +141,7 @@ const Home = () => {
             fullWidth
             sx={{ borderRadius: 999, fontWeight: "bold" }}
             onClick={() => handleFinishOrder(item._id || "")}
+            disabled={!item.active}
           >
             Cerrar cuenta
           </Button>
@@ -148,20 +157,39 @@ const Home = () => {
       direction="column"
       justifyContent="center"
       alignItems="center"
-      sx={{ minHeight: "70vh" }}
+      sx={{ minHeight: "70vh", position: "relative" }}
     >
+      {orders.length ? (
+        <Grid
+          container
+          size={{ xs: 12 }}
+          spacing={4}
+          justifyContent="center"
+          sx={{ minHeight: "60vh", maxHeight: "70vh", overflowY: "auto" }}
+        >
+          {orders
+            .sort((a, b) => (a.active === b.active ? 0 : a.active ? -1 : 1))
+            .map((order) => (
+              <OrderCard item={order as Order} key={order._id || ""} />
+            ))}
+        </Grid>
+      ) : (
+        <Box sx={{ display: "flex" }}>
+          <CircularProgress />
+        </Box>
+      )}
       <Grid
-        container
         size={{ xs: 12 }}
-        spacing={4}
-        justifyContent="center"
-        sx={{ minHeight: "60vh", maxHeight: "60vh", overflowY: "auto" }}
+        sx={{
+          position: "sticky",
+          bottom: 0,
+          backgroundColor: "white",
+          zIndex: 1,
+          width: "100%",
+          px: 4,
+          pt: 2,
+        }}
       >
-        {orders.map((order) => (
-          <OrderCard item={order as Order} key={order._id || ""} />
-        ))}
-      </Grid>
-      <Grid size={{ xs: 12 }}>
         <Button
           variant="contained"
           fullWidth

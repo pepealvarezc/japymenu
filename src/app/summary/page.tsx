@@ -28,6 +28,7 @@ type Props = {
   amount: number;
   onAdd: () => void;
   onRemove: () => void;
+  isActive: boolean;
 };
 
 const OrderItem = ({
@@ -37,6 +38,7 @@ const OrderItem = ({
   amount,
   onAdd,
   onRemove,
+  isActive,
 }: Props) => {
   return (
     <Paper
@@ -69,6 +71,7 @@ const OrderItem = ({
         <IconButton
           onClick={onRemove}
           sx={{ bgcolor: "#f5f5f5", "&:hover": { bgcolor: "#e0e0e0" } }}
+          disabled={!isActive}
         >
           {quantity > 1 ? <Remove /> : <DeleteOutline />}
         </IconButton>
@@ -83,6 +86,7 @@ const OrderItem = ({
             fontWeight: "bold",
             textTransform: "none",
           }}
+          disabled={!isActive}
         >
           <Add />
         </IconButton>
@@ -153,7 +157,12 @@ const OrderSummary = () => {
     <Box p={2}>
       <Grid
         size={{ xs: 12 }}
-        sx={{ maxHeight: "50vh", minHeight: "50vh", overflowY: "auto" }}
+        sx={{
+          maxHeight: "50vh",
+          minHeight: "50vh",
+          overflowY: "auto",
+          position: "relative",
+        }}
       >
         {Object.keys(itemsGrouped).map((id) => {
           const itemsById = itemsGrouped[id];
@@ -167,6 +176,7 @@ const OrderSummary = () => {
               amount={item?.price || 0}
               onAdd={() => handleAddItem(id)}
               onRemove={() => handleDeleteItem(id)}
+              isActive={order.active || false}
             />
           );
         })}
@@ -177,92 +187,110 @@ const OrderSummary = () => {
             size="small"
             sx={{ borderRadius: 999, py: 1.5, fontWeight: "bold", mb: 3 }}
             onClick={() => router.push("/menu")}
+            disabled={!order.active}
           >
             + Agregar
           </Button>
         </Grid>
       </Grid>
-      {(order.sended && (
-        <Grid container size={{ xs: 12 }} justifyContent="start">
+      <Grid
+        size={{ xs: 12 }}
+        spacing={2}
+        sx={{
+          mt: 4,
+          position: "sticky",
+          bottom: 0,
+          backgroundColor: "white",
+          zIndex: 1,
+          width: "100%",
+          px: 4,
+          pt: 2,
+        }}
+      >
+        {(order.sended && (
+          <Grid container size={{ xs: 12 }} justifyContent="start">
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Print />}
+              sx={{
+                borderRadius: 999,
+                py: 1.5,
+                fontWeight: "bold",
+                mb: 3,
+                color: "rgb(209,15,23)",
+                borderColor: "rgb(209,15,23)",
+              }}
+              onClick={() => printOrder(order._id || "")}
+            >
+              Re-Imprimir Cuenta
+            </Button>
+          </Grid>
+        )) ||
+          null}
+        <Paper
+          elevation={2}
+          sx={{ p: 2, borderRadius: 3, textAlign: "start", mb: 4 }}
+        >
+          <Typography fontWeight="bold" color="error.main">
+            Total:
+          </Typography>
+          <Typography variant="body2">
+            Comida: {items?.filter((i) => i.type === "Comida").length || 0}{" "}
+            platillos
+          </Typography>
+          <Typography variant="body2" mb={1}>
+            Bebidas: {items?.filter((i) => i.type === "Bebida").length || 0}{" "}
+            bebidas
+          </Typography>
+          <Divider sx={{ my: 1 }} />
+          <Typography variant="h6" fontWeight="bold" textAlign="right">
+            ${total.toFixed(2)}
+          </Typography>
+        </Paper>
+        <Grid size={{ xs: 12 }}>
           <Button
-            variant="outlined"
-            size="small"
-            startIcon={<Print />}
+            variant="contained"
+            fullWidth
             sx={{
-              borderRadius: 999,
-              py: 1.5,
-              fontWeight: "bold",
-              mb: 3,
-              color: "rgb(209,15,23)",
               borderColor: "rgb(209,15,23)",
+              backgroundColor: "rgb(209,15,23)",
+              color: "white",
+              borderRadius: 20,
+              padding: 2,
+              fontWeight: "bold",
+              fontSize: "18px",
+              textTransform: "none",
             }}
-            onClick={() => printOrder(order._id || "")}
+            disabled={!order?.elements?.length}
+            onClick={handleSendOrder}
           >
-            Re-Imprimir Cuenta
+            Enviar Orden
+          </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 2,
+              borderColor: "rgb(209,15,23)",
+              color: "rgb(209,15,23)",
+              backgroundColor: "#fff",
+              borderRadius: 20,
+              padding: 2,
+              fontWeight: "bold",
+              fontSize: "18px",
+              textTransform: "none",
+            }}
+            onClick={() => {
+              if (order.sended) {
+                return router.push("/");
+              }
+              return router.push("/menu");
+            }}
+          >
+            Regresar
           </Button>
         </Grid>
-      )) ||
-        null}
-
-      <Paper elevation={2} sx={{ p: 2, borderRadius: 3, textAlign: "start" }}>
-        <Typography fontWeight="bold" color="error.main">
-          Total:
-        </Typography>
-        <Typography variant="body2">
-          Comida: {items?.filter((i) => i.type === "Comida").length || 0}{" "}
-          platillos
-        </Typography>
-        <Typography variant="body2" mb={1}>
-          Bebidas: {items?.filter((i) => i.type === "Bebida").length || 0}{" "}
-          bebidas
-        </Typography>
-        <Divider sx={{ my: 1 }} />
-        <Typography variant="h6" fontWeight="bold" textAlign="right">
-          ${total.toFixed(2)}
-        </Typography>
-      </Paper>
-      <Grid size={{ xs: 12 }} sx={{ mt: 4 }}>
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{
-            borderColor: "rgb(209,15,23)",
-            backgroundColor: "rgb(209,15,23)",
-            color: "white",
-            borderRadius: 20,
-            padding: 2,
-            fontWeight: "bold",
-            fontSize: "18px",
-            textTransform: "none",
-          }}
-          disabled={!order?.elements?.length}
-          onClick={handleSendOrder}
-        >
-          Enviar Orden
-        </Button>
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{
-            mt: 2,
-            borderColor: "rgb(209,15,23)",
-            color: "rgb(209,15,23)",
-            backgroundColor: "#fff",
-            borderRadius: 20,
-            padding: 2,
-            fontWeight: "bold",
-            fontSize: "18px",
-            textTransform: "none",
-          }}
-          onClick={() => {
-            if (order.sended) {
-              return router.push("/");
-            }
-            return router.push("/menu");
-          }}
-        >
-          Regresar
-        </Button>
       </Grid>
     </Box>
   );

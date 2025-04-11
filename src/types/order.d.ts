@@ -9,6 +9,7 @@ export type Order = {
   elements?: Menu[];
   createdAt?: string;
   sended?: boolean;
+  active?: boolean;
 };
 
 export type CreationData = {

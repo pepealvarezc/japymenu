@@ -47,7 +47,7 @@ const Home = () => {
       direction="column"
       justifyContent="center"
       alignItems="center"
-      sx={{ minHeight: "70vh" }}
+      sx={{ minHeight: "70vh", position: "relative" }}
     >
       <Grid container size={{ xs: 12 }}>
         <Grid size={{ xs: 12 }}>
@@ -91,7 +91,18 @@ const Home = () => {
           />
         </Grid>
       </Grid>
-      <Grid size={{ xs: 12 }}>
+      <Grid
+        size={{ xs: 12 }}
+        sx={{
+          position: "sticky",
+          bottom: 0,
+          backgroundColor: "white",
+          zIndex: 1,
+          width: "100%",
+          px: 4,
+          pt: 2,
+        }}
+      >
         <Button
           variant="contained"
           fullWidth
