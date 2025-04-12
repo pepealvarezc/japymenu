@@ -207,6 +207,7 @@ const OrderSummary = () => {
     }
 
     if (order && order.id && order.sended && !canFinishOrder) {
+      printOrder(order, items);
       await updateItems(order.id || "", order.elements || []);
       enqueueSnackbar("Orden Actualizada", {
         variant: "success",
