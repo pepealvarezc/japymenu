@@ -20,13 +20,23 @@ export async function POST(
       const url = order.active
         ? "https://0d00-189-128-161-72.ngrok-free.app/print"
         : "https://0d00-189-128-161-72.ngrok-free.app/print/bill";
-      axios.post(url, {
-        table: order?.table,
-        number: `M${order.table}-${String(order._id || "")
-          .slice(-4)
-          .toUpperCase()}`,
-        elements: body.elements || [],
-      });
+
+      axios.post(
+        url,
+        {
+          table: order?.table,
+          number: `M${order.table}-${String(order._id || "")
+            .slice(-4)
+            .toUpperCase()}`,
+          elements: body.elements || [],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
     }
     return NextResponse.json({
       success: true,
