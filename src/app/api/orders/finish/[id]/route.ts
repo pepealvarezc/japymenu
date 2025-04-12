@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import axios from "axios";
+// import axios from "axios";
 
 export async function POST(
   request: NextRequest,
@@ -39,15 +39,15 @@ export async function POST(
       );
     }
 
-    if (order) {
-      axios.post("http://192.168.68.125:3000/print/bill", {
-        table: order?.table,
-        number: `M${order.table}-${String(order._id || "")
-          .slice(-4)
-          .toUpperCase()}`,
-        elements: order?.elements || [],
-      });
-    }
+    // if (order) {
+    //   axios.post("http://192.168.68.125:3000/print/bill", {
+    //     table: order?.table,
+    //     number: `M${order.table}-${String(order._id || "")
+    //       .slice(-4)
+    //       .toUpperCase()}`,
+    //     elements: order?.elements || [],
+    //   });
+    // }
 
     return NextResponse.json({
       success: true,

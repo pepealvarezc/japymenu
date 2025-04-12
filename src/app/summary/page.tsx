@@ -121,7 +121,7 @@ const OrderSummary = () => {
   }
 
   const handleFinishOrder = async (id: string) => {
-    await finishOrder(id);
+    await finishOrder(id, order);
     enqueueSnackbar("Orden Cerrada", {
       variant: "success",
       onExit: () => {
@@ -355,7 +355,7 @@ const OrderSummary = () => {
               }}
               disabled={!order.sended}
               onClick={async () => {
-                printOrder(order.id || "", items);
+                printOrder(order, items);
               }}
             >
               <Print />
