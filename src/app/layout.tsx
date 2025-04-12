@@ -1,8 +1,9 @@
+// app/layout.tsx (o RootLayout)
 import { CssBaseline, Container } from "@mui/material";
 import { Inter } from "next/font/google";
 import Logo from "@/app/assets/logo.png";
 import Image from "next/image";
-import { OrderProvider } from "./context/OrderContext";
+import Providers from "./providers/Providers"; // 👈 Nuevo
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -19,11 +20,11 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.className}>
         <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
-          <OrderProvider>
+          <Providers>
             <Image src={Logo} alt="logo" width={100} />
             <CssBaseline />
             {children}
-          </OrderProvider>
+          </Providers>
         </Container>
       </body>
     </html>

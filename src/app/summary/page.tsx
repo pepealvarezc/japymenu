@@ -25,6 +25,8 @@ import { useOrder } from "../context/OrderContext";
 import { send } from "../features/order/api/send";
 import { enqueueSnackbar } from "notistack";
 import { printOrder } from "../features/order/api/print";
+import { finishOrder } from "../features/order/api/finish";
+import { updateItems } from "../features/order/api/update-items";
 
 type Props = {
   name: string;
@@ -34,6 +36,7 @@ type Props = {
   onAdd: () => void;
   onRemove: () => void;
   isActive: boolean;
+  canEdit: boolean;
 };
 
 const OrderItem = ({
@@ -44,6 +47,7 @@ const OrderItem = ({
   onAdd,
   onRemove,
   isActive,
+  canEdit,
 }: Props) => {
   return (
     <Paper
@@ -79,7 +83,7 @@ const OrderItem = ({
             <IconButton
               onClick={onRemove}
               sx={{ bgcolor: "#f5f5f5", "&:hover": { bgcolor: "#e0e0e0" } }}
-              disabled={!isActive}
+              disabled={!isActive || !canEdit}
               size="small"
             >
               {quantity > 1 ? <Remove /> : <DeleteOutline />}
@@ -96,7 +100,7 @@ const OrderItem = ({
                 fontWeight: "bold",
                 textTransform: "none",
               }}
-              disabled={!isActive}
+              disabled={!isActive || !canEdit}
             >
               <Add />
             </IconButton>
@@ -115,20 +119,34 @@ const OrderSummary = () => {
   if (!order.id) {
     router.push("/");
   }
-  const items = (order.elements || []).filter((e) => {
-    if (order.elements?.some((r) => r.recentlyAdded)) {
-      return e.recentlyAdded;
-    }
-    return true;
-  }).map((r) => {
-    if (order.elements?.some((r) => r.recentlyAdded)) {
-      return r;
-    }
-    return {
-      ...r,
-      recentlyAdded: true,
-    };
-  });
+
+  const handleFinishOrder = async (id: string) => {
+    await finishOrder(id);
+    enqueueSnackbar("Orden Cerrada", {
+      variant: "success",
+      onExit: () => {
+        setOrder({});
+        router.push("/");
+      },
+    });
+  };
+
+  const items = (order.elements || [])
+    .filter((e) => {
+      if (order.elements?.some((r) => r.recentlyAdded)) {
+        return e.recentlyAdded;
+      }
+      return true;
+    })
+    .map((r) => {
+      if (order.elements?.some((r) => r.recentlyAdded)) {
+        return r;
+      }
+      return {
+        ...r,
+        recentlyAdded: true,
+      };
+    });
 
   if (!items?.length) {
     router.push("/menu");
@@ -137,7 +155,7 @@ const OrderSummary = () => {
   const total = sumBy(items, "price");
 
   const handleAddItem = (itemId: string) => {
-    const orderItems = items || [];
+    const orderItems = order?.elements || [];
     const item = orderItems?.find((i) => i._id === itemId);
     if (item) {
       orderItems?.push({
@@ -152,7 +170,7 @@ const OrderSummary = () => {
   };
 
   const handleDeleteItem = (itemId: string) => {
-    const orderItems = items || [];
+    const orderItems = order?.elements || [];
     const index = orderItems?.findLastIndex((item) => item._id === itemId);
     if (index !== undefined && index !== -1) {
       orderItems?.splice(index, 1);
@@ -168,8 +186,11 @@ const OrderSummary = () => {
     "_id"
   );
 
+  const canFinishOrder =
+    order.sended && (order.elements || []).every((e) => !e.recentlyAdded);
+
   const handleSendOrder = async () => {
-    if (order && order.id) {
+    if (order && order.id && !order.sended) {
       const response = await send(
         order.id,
         omit(order, ["id", "_id", "sended", "createdAt", "active"])
@@ -180,6 +201,20 @@ const OrderSummary = () => {
         });
       }
       return router.push("/submit");
+    }
+    if (order && order.id && order.sended && canFinishOrder) {
+      handleFinishOrder(order.id);
+    }
+
+    if (order && order.id && order.sended && !canFinishOrder) {
+      await updateItems(order.id || "", order.elements || []);
+      enqueueSnackbar("Orden Actualizada", {
+        variant: "success",
+        onExit: () => {
+          setOrder({});
+          router.push("/");
+        },
+      });
     }
   };
 
@@ -207,6 +242,7 @@ const OrderSummary = () => {
               onAdd={() => handleAddItem(id)}
               onRemove={() => handleDeleteItem(id)}
               isActive={order.active || false}
+              canEdit={!(order.elements || []).every((e) => !e.recentlyAdded)}
             />
           );
         })}
@@ -317,7 +353,10 @@ const OrderSummary = () => {
                 backgroundColor: "rgb(209,15,23)",
                 color: "white",
               }}
-              onClick={() => printOrder(order._id || "")}
+              disabled={!order.sended}
+              onClick={async () => {
+                printOrder(order.id || "", items);
+              }}
             >
               <Print />
             </IconButton>
@@ -338,10 +377,12 @@ const OrderSummary = () => {
                 fontSize: "18px",
                 textTransform: "none",
               }}
-              disabled={!order?.elements?.length || !order.active}
+              disabled={
+                !order?.elements?.length || !order.active || !order.active
+              }
               onClick={handleSendOrder}
             >
-              Enviar
+              {canFinishOrder ? "Cuenta" : "Enviar"}
             </Button>
           </Grid>
         </Grid>

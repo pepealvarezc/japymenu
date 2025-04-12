@@ -18,7 +18,6 @@ import { getActiveOrders } from "../features/order/api/list";
 import { useEffect } from "react";
 import { Order } from "@/types/order";
 import { useOrder } from "../context/OrderContext";
-// import { finishOrder } from "../features/order/api/finish";
 
 const Home = () => {
   const router = useRouter();
@@ -35,11 +34,6 @@ const Home = () => {
   useEffect(() => {
     handleGetActiveOrders();
   }, []);
-
-  // const handleFinishOrder = async (id: string) => {
-  //   await finishOrder(id);
-  //   router.push("/");
-  // };
 
   const OrderCard = ({ item, key }: { item: Order; key: string }) => (
     <Paper
