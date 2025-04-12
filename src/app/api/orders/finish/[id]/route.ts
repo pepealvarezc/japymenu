@@ -40,7 +40,7 @@ export async function POST(
     }
 
     // if (order) {
-    //   axios.post("http://192.168.68.125:3000/print/bill", {
+    //   axios.post("https://0374-189-128-3-106.ngrok-free.app/print/bill", {
     //     table: order?.table,
     //     number: `M${order.table}-${String(order._id || "")
     //       .slice(-4)

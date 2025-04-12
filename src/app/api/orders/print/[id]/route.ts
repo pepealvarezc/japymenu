@@ -18,8 +18,8 @@ export async function POST(
     const order = await collection.findOne({ _id: new ObjectId(id) });
     if (order) {
       const url = order.active
-        ? "http://192.168.68.125:3000/print"
-        : "http://192.168.68.125:3000/print/bill";
+        ? "https://0374-189-128-3-106.ngrok-free.app/print"
+        : "https://0374-189-128-3-106.ngrok-free.app/print/bill";
       axios.post(url, {
         table: order?.table,
         number: `M${order.table}-${String(order._id || "")
