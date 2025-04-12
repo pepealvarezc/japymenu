@@ -12,8 +12,8 @@ export const printOrder = (
   //   method: "POST",
   // }).then((r) => r.data);
   const url = order.active
-    ? "https://0374-189-128-3-106.ngrok-free.app/print"
-    : "https://0374-189-128-3-106.ngrok-free.app/print/bill";
+    ? "https://0d00-189-128-161-72.ngrok-free.app/print"
+    : "https://0d00-189-128-161-72.ngrok-free.app/print/bill";
   return axios.post(url, {
     table: order?.table,
     number: `M${order.table}-${String(order.id || "")
