@@ -1,10 +1,9 @@
-// app/layout.tsx (o RootLayout)
 import { CssBaseline, Container } from "@mui/material";
 import { Inter } from "next/font/google";
-import Logo from "@/app/assets/logo.png";
-import Image from "next/image";
-import Providers from "./providers/Providers"; // 👈 Nuevo
+import Providers from "./providers/Providers";
+import LogoComponent from "./components/Logo";
 const inter = Inter({ subsets: ["latin"] });
+import "./globals.css";
 
 export const metadata = {
   title: "JapyMenu",
@@ -21,7 +20,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
           <Providers>
-            <Image src={Logo} alt="logo" width={100} />
+            <LogoComponent />
             <CssBaseline />
             {children}
           </Providers>
