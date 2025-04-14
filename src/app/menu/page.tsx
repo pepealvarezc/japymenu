@@ -19,13 +19,7 @@ import { useRouter } from "next/navigation";
 import { getMenu } from "@/app/features/menu/api/get";
 import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
-
-export function formatearDinero(numero: number): string {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  }).format(numero);
-}
+import { formatearDinero } from "@/utils/func";
 
 const Home = () => {
   const router = useRouter();

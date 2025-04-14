@@ -14,13 +14,7 @@ import { getMenuItem } from "@/app/features/menu/api/getById";
 import { useEffect, useState } from "react";
 import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
-
-export function formatearDinero(numero: number): string {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  }).format(numero);
-}
+import { formatearDinero } from "@/utils/func";
 
 const Page = () => {
   const router = useRouter();
