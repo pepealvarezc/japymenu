@@ -15,6 +15,13 @@ import { useEffect, useState } from "react";
 import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
 
+export function formatearDinero(numero: number): string {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(numero);
+}
+
 const Page = () => {
   const router = useRouter();
   const { id } = useParams();
@@ -79,7 +86,7 @@ const Page = () => {
               <span style={{ fontWeight: 500 }}>{element?.quantity}</span>
             </Typography>
             <Typography variant="h6" color="error" sx={{ mt: 1 }}>
-              ${element?.price}
+              {formatearDinero(element?.price)}
             </Typography>
 
             <Box mt={2}>
