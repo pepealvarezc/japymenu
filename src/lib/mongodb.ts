@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 
-// const uri = 'mongodb+srv://developer:bl68eCqMdQSSOfue@cluster0.xmvs3hh.mongodb.net/';
-const uri = "mongodb://localhost:27017/";
+const uri = 'mongodb+srv://developer:bl68eCqMdQSSOfue@cluster0.xmvs3hh.mongodb.net/';
+// const uri = "mongodb://localhost:27017/";
 const options = {};
 
 if (!uri) {
