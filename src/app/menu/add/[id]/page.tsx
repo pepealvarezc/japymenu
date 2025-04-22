@@ -14,6 +14,7 @@ import { getMenuItem } from "@/app/features/menu/api/getById";
 import { useEffect, useState } from "react";
 import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
+import { formatearDinero } from "@/utils/func";
 
 const Page = () => {
   const router = useRouter();
@@ -79,7 +80,7 @@ const Page = () => {
               <span style={{ fontWeight: 500 }}>{element?.quantity}</span>
             </Typography>
             <Typography variant="h6" color="error" sx={{ mt: 1 }}>
-              ${element?.price}
+              {formatearDinero(element?.price)}
             </Typography>
 
             <Box mt={2}>
