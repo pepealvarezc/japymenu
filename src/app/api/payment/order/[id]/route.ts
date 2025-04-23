@@ -10,7 +10,7 @@ export async function GET(
   try {
     const id = (await params).id;
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("payments");
 
     const payments = await collection

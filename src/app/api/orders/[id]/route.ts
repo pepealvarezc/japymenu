@@ -10,7 +10,7 @@ export async function GET(
   try {
     const id = (await params).id;
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const result = await collection.findOne({ _id: new ObjectId(id) });
@@ -45,7 +45,7 @@ export async function PUT(
     }
 
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const order = await collection.findOne({ _id: new ObjectId(id) });
@@ -97,7 +97,7 @@ export async function POST(
     }
 
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const order = await collection.findOne({ _id: new ObjectId(id) });

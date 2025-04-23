@@ -12,7 +12,7 @@ export async function POST(
     const body = await request.json();
 
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("payments");
     const orderCollection = db.collection("orders");
 

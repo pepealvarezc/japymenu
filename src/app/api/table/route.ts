@@ -5,9 +5,8 @@ const { DEFAULT_DB } = process.env;
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("table");
-    console.log('DEFAULT_DB', DEFAULT_DB)
 
     const result = await collection
       .find({

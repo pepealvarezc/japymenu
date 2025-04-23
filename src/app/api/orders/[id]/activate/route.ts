@@ -11,7 +11,7 @@ export async function PUT(
     const id = (await params).id;
 
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const order = await collection.findOne({ _id: new ObjectId(id) });

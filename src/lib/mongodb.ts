@@ -9,8 +9,6 @@ if (!uri) {
   throw new Error("Falta MONGODB_URI en .env.local");
 }
 
-console.log("THE URI", uri);
-
 const client = new MongoClient(uri, options);
 const clientPromise: Promise<MongoClient> = client.connect();
 

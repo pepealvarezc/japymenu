@@ -13,14 +13,18 @@ export async function POST(
     const body = await request.json();
 
     const client = await clientPromise;
-    const db = client.db(DEFAULT_DB);
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const order = await collection.findOne({ _id: new ObjectId(id) });
     if (order) {
       const url = order.active
-        ? `${PRINTER_SERVER}/print`
-        : `${PRINTER_SERVER}/print/bill`;
+        ? `${
+            PRINTER_SERVER || "https://23ce-189-128-3-106.ngrok-free.app/"
+          }/print`
+        : `${
+            PRINTER_SERVER || "https://23ce-189-128-3-106.ngrok-free.app/"
+          }/print/bill`;
       axios.post(
         url,
         {
