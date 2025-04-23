@@ -7,7 +7,7 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db(DEFAULT_DB);
     const collection = db.collection("orders");
-
+    console.log("DEFAULT_DB", DEFAULT_DB);
     const result = await collection.countDocuments({
       active: true,
     });
