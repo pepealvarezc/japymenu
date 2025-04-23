@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -23,6 +23,8 @@ import { Menu } from "@/types/menu";
 import { defaultColor } from "@/utils/constants";
 
 const Home = () => {
+  const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const router = useRouter();
   const { order } = useOrder();
 
@@ -71,7 +73,17 @@ const Home = () => {
   }, {} as Record<string, typeof menu>);
 
   const handleAccordionToggle = (category: string) => {
-    setExpandedCategory((prev) => (prev === category ? false : category));
+    const isExpanding = expandedCategory !== category;
+    setExpandedCategory(isExpanding ? category : false);
+
+    if (isExpanding) {
+      setTimeout(() => {
+        const el = accordionRefs.current[category];
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 200); // da tiempo a que el DOM actualice el acordeón
+    }
   };
 
   return (
@@ -113,6 +125,9 @@ const Home = () => {
               key={category}
               expanded={expandedCategory === category}
               onChange={() => handleAccordionToggle(category)}
+              ref={(el: HTMLDivElement | null) => {
+                accordionRefs.current[category] = el;
+              }}
               sx={{
                 mb: 2,
                 border: "none",

@@ -31,7 +31,7 @@ import { finishOrder } from "@/app/features/order/api/finish";
 
 export default function Page() {
   const { id } = useParams();
-
+  const [paying, setPaying] = useState(false);
   const router = useRouter();
 
   const { order } = useOrder();
@@ -53,6 +53,7 @@ export default function Page() {
     }));
     setLoading(false);
     setPayments(response.payments);
+    setPaying(false);
   };
 
   useEffect(() => {
@@ -69,10 +70,12 @@ export default function Page() {
 
   const handleFinish = async () => {
     await finishOrder(String(id), order);
+    setPaying(false);
     router.push("/");
   };
 
   const handlePayOrder = async () => {
+    setPaying(true);
     await orderPayment({
       order,
       tip,
@@ -520,7 +523,7 @@ export default function Page() {
               color: "white",
             }}
             onClick={() => router.push("/menu")}
-            disabled={!order.active}
+            disabled
           >
             <Add />
           </IconButton>
@@ -557,7 +560,8 @@ export default function Page() {
               fontSize: "18px",
               textTransform: "none",
             }}
-            disabled={!order.active}
+            disabled={!order.active || paying}
+            loading={paying}
             onClick={handlePayOrder}
           >
             Enviar
