@@ -17,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={inter.className}>
+      <body
+        className={inter.className}
+        style={{ backgroundColor: "#fff", color: "#000" }}
+      >
         <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
           <Providers>
             <LogoComponent />

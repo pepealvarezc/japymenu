@@ -17,7 +17,11 @@ import {
 import { getActiveOrders } from "../features/order/api/list";
 import { useEffect } from "react";
 import { Order } from "@/types/order";
+import { formatearDinero } from "@/utils/func";
+import { reActivateOrder } from "../features/order/api/re-activate";
 import { useOrder } from "../context/OrderContext";
+import { enqueueSnackbar } from "notistack";
+import { defaultColor } from "@/utils/constants";
 
 const Home = () => {
   const router = useRouter();
@@ -48,7 +52,7 @@ const Home = () => {
         overflowY: "auto",
       }}
     >
-      <Grid size={{ xs: 12 }}>
+      <Grid size={{ xs: 12 }} key={key}>
         <Stack spacing={0.5}>
           <Box display="flex" justifyContent="flex-end" mt={1}>
             <Chip
@@ -63,10 +67,32 @@ const Home = () => {
                 color: "#fff",
                 minWidth: 100,
               }}
+              onClick={async () => {
+                if (!item.active) {
+                  const response = await reActivateOrder(item._id || "");
+                  if (response) {
+                    const isSuccess = response.success;
+                    enqueueSnackbar(
+                      isSuccess ? "Orden Reactivada" : response.message,
+                      {
+                        variant: isSuccess ? "success" : "warning",
+                        onClose: () => {
+                          if (isSuccess) {
+                            handleGetActiveOrders();
+                          }
+                        },
+                      }
+                    );
+                  }
+                }
+              }}
             />
           </Box>
           <Typography fontWeight="bold" fontSize={16}>
             {`No. M${item.table}-${(item._id || "").slice(-4).toUpperCase()}`}
+          </Typography>
+          <Typography fontWeight="bold" fontSize={16}>
+            Mesa: {item?.table}
           </Typography>
           <Typography variant="body2">
             Atiende: <strong>{item?.name}</strong>
@@ -81,7 +107,6 @@ const Home = () => {
             Hora:{" "}
             {(item?.createdAt && dayjs(item.createdAt).format("hh:mm A")) || ""}
           </Typography>
-          <Typography variant="body2">Mesa: {item?.table}</Typography>
           <Typography variant="body2">Notas: {item?.notes || ""}</Typography>
           <Box
             display="flex"
@@ -92,7 +117,7 @@ const Home = () => {
               Total artículos: {item.elements?.length}
             </Typography>
             <Typography variant="body2" fontWeight="bold">
-              Total: ${sumBy(item.elements, "price")}
+              Total: {formatearDinero(sumBy(item.elements, "price"))}
             </Typography>
           </Box>
         </Stack>
@@ -163,12 +188,15 @@ const Home = () => {
               );
             })
             .map((order) => (
-              <OrderCard item={order as Order} key={order._id || ""} />
+              <OrderCard
+                item={order as Order}
+                key={order._id || order?.id || ""}
+              />
             ))}
         </Grid>
       ) : (
         <Box sx={{ display: "flex" }}>
-          <CircularProgress />
+          <CircularProgress style={{ color: defaultColor }} />
         </Box>
       )}
       <Grid

@@ -1,14 +1,17 @@
 import { Order } from "@/types/order";
 import axios from "axios";
 
-export const finishOrder = (
+export const finishOrder = async (
   id: string,
   order: Order
 ): Promise<{ success: boolean; id: string }> => {
-  axios.post(
-    "https://0d00-189-128-161-72.ngrok-free.app/print/bill",
+  await axios.post(
+    `https://23ce-189-128-3-106.ngrok-free.app/print/bill`,
     {
+      id: order._id,
       table: order?.table,
+      mesero: order.name,
+      notes: order.notes,
       number: `M${order.table}-${String(order._id || "")
         .slice(-4)
         .toUpperCase()}`,

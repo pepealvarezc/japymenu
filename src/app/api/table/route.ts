@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
+const { DEFAULT_DB } = process.env;
 
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db("japymenu");
+    const db = client.db(DEFAULT_DB);
     const collection = db.collection("table");
 
     const result = await collection

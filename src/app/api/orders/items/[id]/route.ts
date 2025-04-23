@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
 import clientPromise from "@/lib/mongodb"; // Ajusta la ruta según tengas configurado tu cliente
+const { DEFAULT_DB } = process.env;
 
 export async function PUT(
   request: NextRequest,
@@ -18,7 +19,7 @@ export async function PUT(
     }
 
     const client = await clientPromise;
-    const db = client.db("japymenu");
+    const db = client.db(DEFAULT_DB);
     const collection = db.collection("orders");
 
     const order = await collection.findOne({ _id: new ObjectId(id) });

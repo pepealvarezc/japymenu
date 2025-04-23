@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
+const { DEFAULT_DB } = process.env;
 
 export async function GET(request: Request) {
   try {
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
     const type = searchParams.get("type");
 
     const client = await clientPromise;
-    const db = client.db("japymenu");
+    const db = client.db(DEFAULT_DB);
     const collection = db.collection("menu");
 
     const query = type ? { type } : {};

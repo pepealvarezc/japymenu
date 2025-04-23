@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import groupBy from "lodash/groupBy";
 import first from "lodash/first";
@@ -14,122 +14,23 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import {
-  Add,
-  Remove,
-  DeleteOutline,
-  Print,
-  KeyboardReturn,
-} from "@mui/icons-material";
+import { Add, Print, KeyboardReturn } from "@mui/icons-material";
 import { useOrder } from "../context/OrderContext";
 import { send } from "../features/order/api/send";
 import { enqueueSnackbar } from "notistack";
 import { printOrder } from "../features/order/api/print";
-import { finishOrder } from "../features/order/api/finish";
 import { updateItems } from "../features/order/api/update-items";
-
-type Props = {
-  name: string;
-  description: string;
-  quantity: number;
-  amount: number;
-  onAdd: () => void;
-  onRemove: () => void;
-  isActive: boolean;
-  canEdit: boolean;
-};
-
-const OrderItem = ({
-  name,
-  description,
-  quantity,
-  amount,
-  onAdd,
-  onRemove,
-  isActive,
-  canEdit,
-}: Props) => {
-  return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 2,
-        mb: 2,
-        borderRadius: 3,
-        maxHeight: 130,
-        minHeight: 130,
-        textAlign: "start",
-      }}
-    >
-      <Typography variant="subtitle1" fontWeight="bold">
-        {name}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {description}
-      </Typography>
-      <Grid container direction="row" size={{ xs: 12 }}>
-        <Grid size={{ xs: 8 }}>
-          <Typography variant="h6" fontWeight="bold" mt={1}>
-            ${amount.toFixed(2)}
-          </Typography>
-        </Grid>
-        <Grid size={{ xs: 4 }} sx={{ mt: 1 }}>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="flex-end"
-            gap={1}
-          >
-            <IconButton
-              onClick={onRemove}
-              sx={{ bgcolor: "#f5f5f5", "&:hover": { bgcolor: "#e0e0e0" } }}
-              disabled={!isActive || !canEdit}
-              size="small"
-            >
-              {quantity > 1 ? <Remove /> : <DeleteOutline />}
-            </IconButton>
-            <Typography>{quantity}</Typography>
-            <IconButton
-              onClick={onAdd}
-              size="small"
-              sx={{
-                "&:hover": { bgcolor: "error.dark" },
-                borderColor: "rgb(209,15,23)",
-                backgroundColor: "rgb(209,15,23)",
-                color: "white",
-                fontWeight: "bold",
-                textTransform: "none",
-              }}
-              disabled={!isActive || !canEdit}
-            >
-              <Add />
-            </IconButton>
-          </Box>
-        </Grid>
-      </Grid>
-    </Paper>
-  );
-};
+import PrintDialog from "@/app/components/PrintDialog";
+import OrderItem from "../components/OrderItem";
 
 const OrderSummary = () => {
   const router = useRouter();
-
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const { order, setOrder } = useOrder();
 
   if (!order.id) {
     router.push("/");
   }
-
-  const handleFinishOrder = async (id: string) => {
-    await finishOrder(id, order);
-    enqueueSnackbar("Orden Cerrada", {
-      variant: "success",
-      onExit: () => {
-        setOrder({});
-        router.push("/");
-      },
-    });
-  };
 
   const items = (order.elements || [])
     .filter((e) => {
@@ -200,22 +101,18 @@ const OrderSummary = () => {
           variant: "error",
         });
       }
-      return router.push("/submit");
+      setPrintDialogOpen(true);
     }
     if (order && order.id && order.sended && canFinishOrder) {
-      handleFinishOrder(order.id);
+      router.push(`/bill/${order.id}`);
     }
 
     if (order && order.id && order.sended && !canFinishOrder) {
-      printOrder(order, items);
       await updateItems(order.id || "", order.elements || []);
       enqueueSnackbar("Orden Actualizada", {
         variant: "success",
-        onExit: () => {
-          setOrder({});
-          router.push("/");
-        },
       });
+      setPrintDialogOpen(true);
     }
   };
 
@@ -307,7 +204,7 @@ const OrderSummary = () => {
             alignItems: "center",
           }}
         >
-          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+          <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
             <IconButton
               size="large"
               sx={{
@@ -327,7 +224,7 @@ const OrderSummary = () => {
               <KeyboardReturn />
             </IconButton>
           </Grid>
-          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+          <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
             <IconButton
               color="error"
               size="large"
@@ -344,7 +241,7 @@ const OrderSummary = () => {
               <Add />
             </IconButton>
           </Grid>
-          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+          <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
             <IconButton
               size="large"
               sx={{
@@ -362,7 +259,7 @@ const OrderSummary = () => {
               <Print />
             </IconButton>
           </Grid>
-          <Grid size={{ xs: 3 }} sx={{ textAlign: "start" }}>
+          <Grid size={{ xs: 6 }} sx={{ textAlign: "start" }}>
             <Button
               variant="contained"
               size="small"
@@ -379,7 +276,7 @@ const OrderSummary = () => {
                 textTransform: "none",
               }}
               disabled={
-                !order?.elements?.length || !order.active || !order.active
+                !order?.elements?.length
               }
               onClick={handleSendOrder}
             >
@@ -388,6 +285,17 @@ const OrderSummary = () => {
           </Grid>
         </Grid>
       </Grid>
+      <PrintDialog
+        open={printDialogOpen}
+        onConfirm={() => {
+          printOrder(order, items);
+          router.push(!order.sended ? "/submit" : "/");
+        }}
+        onClose={() => {
+          setPrintDialogOpen(false);
+          router.push(!order.sended ? "/submit" : "/");
+        }}
+      />
     </Box>
   );
 };
