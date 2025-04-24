@@ -1,6 +1,5 @@
 import { MongoClient } from "mongodb";
 const { MONGODB_URI } = process.env;
-console.log(process.env);
 const uri =
   MONGODB_URI ||
   "mongodb+srv://developer:bl68eCqMdQSSOfue@cluster0.xmvs3hh.mongodb.net/";

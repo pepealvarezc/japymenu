@@ -131,90 +131,105 @@ const Home = () => {
           })}
         </Grid>
       </Grid>
-      <Summary payments={payments} loading={loading} />
       <Grid
-        container
         size={{ xs: 12 }}
-        direction="row"
+        spacing={2}
         sx={{
-          justifyContent: "center",
-          alignItems: "center",
+          mt: 4,
+          position: "sticky",
+          bottom: 0,
+          backgroundColor: "white",
+          zIndex: 1,
+          width: "100%",
+          pt: 2,
         }}
       >
-        <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
-          <IconButton
-            size="large"
-            sx={{
-              borderRadius: 999,
-              fontWeight: "bold",
-              borderColor: defaultColor,
-              backgroundColor: defaultColor,
-              color: "white",
-            }}
-            onClick={() => {
-              return router.push("/summary");
-            }}
-          >
-            <KeyboardReturn />
-          </IconButton>
-        </Grid>
-        <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
-          <IconButton
-            color="error"
-            size="large"
-            sx={{
-              borderRadius: 999,
-              fontWeight: "bold",
-              borderColor: defaultColor,
-              backgroundColor: defaultColor,
-              color: "white",
-            }}
-            onClick={() => router.push("/menu")}
-            disabled={!order.active}
-          >
-            <Add />
-          </IconButton>
-        </Grid>
-        <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
-          <IconButton
-            size="large"
-            sx={{
-              borderRadius: 999,
-              fontWeight: "bold",
-              borderColor: defaultColor,
-              backgroundColor: defaultColor,
-              color: "white",
-            }}
-            disabled={!payments.length}
-            onClick={() => printByOrder({ order, payments })}
-          >
-            <Print />
-          </IconButton>
-        </Grid>
-        <Grid size={{ xs: 6 }} sx={{ textAlign: "start" }}>
-          <Button
-            variant="contained"
-            size="small"
-            fullWidth
-            sx={{
-              borderColor: defaultColor,
-              backgroundColor: defaultColor,
-              color: "white",
-              borderRadius: 10,
-              padding: 1,
-              minWidth: 100,
-              fontWeight: "bold",
-              fontSize: "18px",
-              textTransform: "none",
-            }}
-            disabled={!order?.elements?.length || !order.active || loading}
-            onClick={() => {
-              updateItems(String(id), order?.elements || []);
-              router.push(`/bill/${id}/pay`);
-            }}
-          >
-            Confirmar
-          </Button>
+        <Summary payments={payments} loading={loading} />
+        <Grid
+          container
+          size={{ xs: 12 }}
+          direction="row"
+          sx={{
+            justifyContent: "center",
+            alignItems: "center",
+            mt: 2,
+          }}
+        >
+          <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
+            <IconButton
+              size="large"
+              sx={{
+                borderRadius: 999,
+                fontWeight: "bold",
+                borderColor: defaultColor,
+                backgroundColor: defaultColor,
+                color: "white",
+              }}
+              onClick={() => {
+                return router.push("/summary");
+              }}
+            >
+              <KeyboardReturn />
+            </IconButton>
+          </Grid>
+          <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
+            <IconButton
+              color="error"
+              size="large"
+              sx={{
+                borderRadius: 999,
+                fontWeight: "bold",
+                borderColor: defaultColor,
+                backgroundColor: defaultColor,
+                color: "white",
+              }}
+              onClick={() => router.push("/menu")}
+              disabled={!order.active}
+            >
+              <Add />
+            </IconButton>
+          </Grid>
+          <Grid size={{ xs: 2 }} sx={{ textAlign: "start" }}>
+            <IconButton
+              size="large"
+              sx={{
+                borderRadius: 999,
+                fontWeight: "bold",
+                borderColor: defaultColor,
+                backgroundColor: defaultColor,
+                color: "white",
+              }}
+              disabled={!payments.length}
+              onClick={() => printByOrder({ order, payments })}
+            >
+              <Print />
+            </IconButton>
+          </Grid>
+          <Grid size={{ xs: 6 }} sx={{ textAlign: "start" }}>
+            <Button
+              variant="contained"
+              size="small"
+              fullWidth
+              sx={{
+                borderColor: defaultColor,
+                backgroundColor: defaultColor,
+                color: "white",
+                borderRadius: 10,
+                padding: 1,
+                minWidth: 100,
+                fontWeight: "bold",
+                fontSize: "18px",
+                textTransform: "none",
+              }}
+              disabled={!order?.elements?.length || !order.active || loading}
+              onClick={() => {
+                updateItems(String(id), order?.elements || []);
+                router.push(`/bill/${id}/pay`);
+              }}
+            >
+              Confirmar
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
