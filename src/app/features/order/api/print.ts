@@ -12,8 +12,8 @@ export const printOrder = (
   //   method: "POST",
   // }).then((r) => r.data);
   const url = order.active
-    ? "https://0d00-189-128-161-72.ngrok-free.app/print"
-    : "https://0d00-189-128-161-72.ngrok-free.app/print/bill";
+    ? `https://512f-187-154-215-204.ngrok-free.app/print`
+    : `https://512f-187-154-215-204.ngrok-free.app/print/bill`;
   return axios.post(
     url,
     {
@@ -22,6 +22,9 @@ export const printOrder = (
         .slice(-4)
         .toUpperCase()}`,
       elements,
+      id: order._id,
+      mesero: order.name,
+      notes: order.notes,
     },
     {
       headers: {

@@ -8,25 +8,11 @@ import { useOrder } from "@/app/context/OrderContext";
 import { getTables } from "@/app/features/table/api/get";
 import { Table } from "@/types/table";
 import { createOrder } from "@/app/features/order/api/create";
-import { Order } from "@/types/order";
-import { getActiveOrders } from "../features/order/api/list";
 
 const Home = () => {
   const router = useRouter();
   const { order, setOrder } = useOrder();
   const [tables, setTables] = useState<Table[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-
-  const handleGetActiveOrders = async () => {
-    const response = await getActiveOrders().catch(() => null);
-    if (response) {
-      setOrders(response.result);
-    }
-  };
-
-  useEffect(() => {
-    handleGetActiveOrders();
-  }, []);
 
   const handleGetTables = async () => {
     const response = await getTables().catch(() => null);
@@ -75,14 +61,13 @@ const Home = () => {
         </Grid>
         <Grid size={{ xs: 12 }}>
           <Autocomplete
-            options={tables.map((table) => table.number)}
+            options={tables
+              .sort((a: Table, b: Table) => Number(a.number) - Number(b.number))
+              .map((table) => table.number)}
             value={order.table}
             onChange={(event, newValue) => {
               setOrder({ ...order, table: newValue ?? "" });
             }}
-            getOptionDisabled={(option) =>
-              !!orders.find((o) => String(o.table) === option && o.active)
-            }
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: 5,

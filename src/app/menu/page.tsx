@@ -1,27 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
-  Grid,
-  Button,
-  Typography,
   Box,
-  CardContent,
-  Card,
+  Button,
   CircularProgress,
+  Grid,
+  TextField,
+  Typography,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  TextField,
+  Card,
+  CardContent,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useRouter } from "next/navigation";
 import { getMenu } from "@/app/features/menu/api/get";
-import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
 import { formatearDinero } from "@/utils/func";
+import { Menu } from "@/types/menu";
+import { defaultColor } from "@/utils/constants";
 
 const Home = () => {
+  const accordionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const router = useRouter();
   const { order } = useOrder();
 
@@ -70,120 +73,120 @@ const Home = () => {
   }, {} as Record<string, typeof menu>);
 
   const handleAccordionToggle = (category: string) => {
-    setExpandedCategory((prev) => (prev === category ? false : category));
+    const isExpanding = expandedCategory !== category;
+    setExpandedCategory(isExpanding ? category : false);
+
+    if (isExpanding) {
+      setTimeout(() => {
+        const el = accordionRefs.current[category];
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 200); // da tiempo a que el DOM actualice el acordeón
+    }
   };
 
   return (
-    <Grid
-      container
-      spacing={5}
-      direction="column"
-      justifyContent="center"
-      alignItems="center"
-      sx={{ minHeight: "70vh", position: "relative" }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        maxHeight: "80vh",
+      }}
     >
-      <Grid size={{ xs: 12 }} sx={{ width: "100%", px: 2, mt: 2 }}>
+      <Box sx={{ px: 2, mt: 2 }}>
         <TextField
           fullWidth
           size="small"
           onChange={(e) => setText(e.target.value)}
           placeholder="Buscar elemento en el menú"
         />
-      </Grid>
+      </Box>
 
-      <Grid
-        container
-        spacing={4}
-        justifyContent="center"
+      <Box
         sx={{
-          maxHeight: "70vh",
-          minHeight: "70vh",
+          flex: 1,
           overflowY: "auto",
-          width: "100%",
+          px: 2,
+          mt: 2,
         }}
       >
-        {!loading && menu.length === 0 ? (
-          <Box sx={{ width: "100%", textAlign: "center", mt: 4 }}>
-            <Typography variant="body1">No hay coincidencias.</Typography>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <CircularProgress style={{ color: defaultColor }} />
           </Box>
-        ) : loading ? (
-          <Box
-            sx={{ display: "flex", justifyContent: "center", width: "100%" }}
-          >
-            <CircularProgress />
-          </Box>
+        ) : menu.length === 0 ? (
+          <Typography textAlign="center" mt={4}>
+            No hay coincidencias.
+          </Typography>
         ) : (
-          <Box p={2} sx={{ width: "100%" }}>
-            {Object.entries(groupedByCategory).map(([category, items]) => (
-              <Accordion
-                key={category}
-                expanded={expandedCategory === category}
-                onChange={() => handleAccordionToggle(category)}
-                sx={{
-                  mb: 2,
-                  border: "none",
-                  boxShadow: "none",
-                  "&::before": {
-                    display: "none",
-                  },
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography variant="h6" fontWeight="bold">
-                    {category}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container spacing={2}>
-                    {items.map((item) => (
-                      <Grid size={{ xs: 6 }} key={item._id}>
-                        <Card
-                          sx={{
-                            borderRadius: 2,
-                            boxShadow: 3,
-                            height: "100%",
-                            transition:
-                              "transform 0.2s ease, box-shadow 0.2s ease",
-                            "&:hover": {
-                              transform: "scale(0.98)",
-                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-                              cursor: "pointer",
-                            },
-                          }}
-                          onClick={() => router.push(`/menu/add/${item._id}`)}
-                        >
-                          <CardContent>
-                            <Typography variant="body1" fontWeight="500">
-                              {item.name}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Cantidad: {item.quantity}
-                            </Typography>
-                            <Typography variant="h6" color="error" mt={1}>
-                              {formatearDinero(Number(item.price.toFixed(2)))}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </Box>
+          Object.entries(groupedByCategory).map(([category, items]) => (
+            <Accordion
+              key={category}
+              expanded={expandedCategory === category}
+              onChange={() => handleAccordionToggle(category)}
+              ref={(el: HTMLDivElement | null) => {
+                accordionRefs.current[category] = el;
+              }}
+              sx={{
+                mb: 2,
+                border: "none",
+                boxShadow: "none",
+                "&::before": { display: "none" },
+              }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6" fontWeight="bold">
+                  {category}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  {items.map((item) => (
+                    <Grid size={{ xs: 6 }} key={item._id}>
+                      <Card
+                        onClick={() => router.push(`/menu/add/${item._id}`)}
+                        sx={{
+                          borderRadius: 2,
+                          boxShadow: 3,
+                          height: "100%",
+                          transition:
+                            "transform 0.2s ease, box-shadow 0.2s ease",
+                          "&:hover": {
+                            transform: "scale(0.98)",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        <CardContent>
+                          <Typography fontWeight="500">{item.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Cantidad: {item.quantity}
+                          </Typography>
+                          <Typography variant="h6" color="error" mt={1}>
+                            {formatearDinero(Number(item.price.toFixed(2)))}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          ))
         )}
-      </Grid>
+      </Box>
 
-      <Grid
-        size={{ xs: 12 }}
+      <Box
         sx={{
           position: "sticky",
           bottom: 0,
           backgroundColor: "white",
           zIndex: 1,
-          width: "100%",
           px: 4,
           pt: 2,
+          pb: 2,
         }}
       >
         <Button
@@ -204,8 +207,8 @@ const Home = () => {
         >
           Siguiente
         </Button>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 

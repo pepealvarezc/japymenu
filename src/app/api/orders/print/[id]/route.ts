@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import axios from "axios";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
+const { DEFAULT_DB, PRINTER_SERVER } = process.env;
 
 export async function POST(
   request: NextRequest,
@@ -12,15 +13,18 @@ export async function POST(
     const body = await request.json();
 
     const client = await clientPromise;
-    const db = client.db("japymenu");
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const order = await collection.findOne({ _id: new ObjectId(id) });
     if (order) {
       const url = order.active
-        ? "https://0d00-189-128-161-72.ngrok-free.app/print"
-        : "https://0d00-189-128-161-72.ngrok-free.app/print/bill";
-
+        ? `${
+            PRINTER_SERVER || "https://512f-187-154-215-204.ngrok-free.app/"
+          }/print`
+        : `${
+            PRINTER_SERVER || "https://512f-187-154-215-204.ngrok-free.app/"
+          }/print/bill`;
       axios.post(
         url,
         {

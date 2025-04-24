@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
+
 import clientPromise from "@/lib/mongodb";
 const { DEFAULT_DB } = process.env;
 
@@ -11,9 +12,9 @@ export async function GET(
     const id = (await params).id;
     const client = await clientPromise;
     const db = client.db(DEFAULT_DB || "dev-japymenu");
-    const collection = db.collection("menu");
+    const collection = db.collection("payments");
 
-    const result = await collection.findOne({ _id: new ObjectId(id) });
+    const result = await collection.findOne({ order: new ObjectId(id) });
 
     if (!result) {
       return NextResponse.json(
@@ -28,3 +29,4 @@ export async function GET(
     return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }
+

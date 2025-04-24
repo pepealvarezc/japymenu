@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
+const { DEFAULT_DB } = process.env;
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const client = await clientPromise;
-    const db = client.db("japymenu");
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const result = await collection.insertOne({
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db("japymenu");
+    const db = client.db(DEFAULT_DB || "dev-japymenu");
     const collection = db.collection("orders");
 
     const result = await collection

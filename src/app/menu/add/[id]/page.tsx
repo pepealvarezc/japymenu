@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { Menu } from "@/types/menu";
 import { useOrder } from "@/app/context/OrderContext";
 import { formatearDinero } from "@/utils/func";
+import { defaultColor } from "@/utils/constants";
 
 const Page = () => {
   const router = useRouter();
@@ -106,7 +107,7 @@ const Page = () => {
         </Grid>
       ) : (
         <Box sx={{ display: "flex" }}>
-          <CircularProgress />
+          <CircularProgress style={{ color: defaultColor }} />
         </Box>
       )}
       <Grid
