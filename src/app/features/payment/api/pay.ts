@@ -21,7 +21,7 @@ export const orderPayment = async ({
   paid,
 }: Params) => {
   axios.post(
-    "https://23ce-189-128-3-106.ngrok-free.app/print/partial",
+    "https://1898-189-128-134-119.ngrok-free.app/print/partial",
     {
       table: order?.table,
       number: `M${order.table}-${String(order._id || "")

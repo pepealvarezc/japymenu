@@ -9,7 +9,7 @@ type Params = {
 
 export const printByOrder = ({ order, payments }: Params) => {
   axios.post(
-    "https://23ce-189-128-3-106.ngrok-free.app/print/payments",
+    "https://1898-189-128-134-119.ngrok-free.app/print/payments",
     {
       table: order?.table,
       number: `M${order.table}-${String(order._id || "")
