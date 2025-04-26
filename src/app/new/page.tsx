@@ -3,16 +3,39 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
-import { Grid, Button, TextField, Autocomplete } from "@mui/material";
+import {
+  Grid,
+  Button,
+  TextField,
+  Paper,
+  Typography,
+  Badge,
+  Box,
+} from "@mui/material";
 import { useOrder } from "@/app/context/OrderContext";
 import { getTables } from "@/app/features/table/api/get";
 import { Table } from "@/types/table";
 import { createOrder } from "@/app/features/order/api/create";
+import { Order } from "@/types/order";
+import { getActiveOrders } from "../features/order/api/list";
+import { getWaiters } from "../features/waiter/api/get";
+import { Waiter } from "@/types/waiter";
 
 const Home = () => {
   const router = useRouter();
   const { order, setOrder } = useOrder();
   const [tables, setTables] = useState<Table[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [waiters, setWaiters] = useState<Waiter[]>([]);
+
+  const handleGetActiveOrders = async () => {
+    const response = await getActiveOrders().catch(() => null);
+    if (response) {
+      setOrders(response.result);
+    }
+  };
+
+  useEffect(() => {}, []);
 
   const handleGetTables = async () => {
     const response = await getTables().catch(() => null);
@@ -21,8 +44,17 @@ const Home = () => {
     }
   };
 
+  const handleGetWaiters = async () => {
+    const response = await getWaiters().catch(() => null);
+    if (response) {
+      setWaiters(response.result);
+    }
+  };
+
   useEffect(() => {
     handleGetTables();
+    handleGetActiveOrders();
+    handleGetWaiters();
   }, []);
 
   const handleCreateOrder = async () => {
@@ -49,49 +81,176 @@ const Home = () => {
       alignItems="center"
       sx={{ minHeight: "70vh", position: "relative" }}
     >
-      <Grid container size={{ xs: 12 }}>
-        <Grid size={{ xs: 12 }}>
-          <TextField
-            label="Tu nombre"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ sx: { borderRadius: 5, boxShadow: 2 } }}
-            onChange={(e) => setOrder({ ...order, name: e.target.value })}
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <Autocomplete
-            options={tables
-              .sort((a: Table, b: Table) => Number(a.number) - Number(b.number))
-              .map((table) => table.number)}
-            value={order.table}
-            onChange={(event, newValue) => {
-              setOrder({ ...order, table: newValue ?? "" });
-            }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 5,
-                boxShadow: 2,
-              },
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Mesa"
-                InputLabelProps={{ shrink: true }}
-              />
-            )}
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <TextField
-            label="Notas"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ sx: { borderRadius: 5, boxShadow: 2 } }}
-            onChange={(e) => setOrder({ ...order, notes: e.target.value })}
-          />
-        </Grid>
+      <Grid container spacing={4} sx={{ mt: 4 }}>
+        {(!order.name && (
+          <>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="h4" fontWeight="bold">
+                ¿Quién levanta la orden?
+              </Typography>
+            </Grid>
+            <Grid
+              container
+              sx={{
+                maxHeight: "50vh",
+                minHeight: "50vh",
+                overflowY: "auto",
+                p: 2,
+              }}
+              spacing={4}
+              size={{ xs: 12 }}
+              alignContent="center"
+            >
+              {waiters.map((waiter) => {
+                const ownOrders = orders.filter(
+                  (o) => o.name === waiter.name && o.active
+                );
+                return (
+                  <Grid
+                    size={{ xs: 6 }}
+                    key={waiter._id}
+                  >
+                    <Box width="100%" sx={{ minHeight: 40 }}>
+                      <Badge
+                        badgeContent={ownOrders.length}
+                        sx={{
+                          width: "100%",
+                          "& .MuiBadge-badge": {
+                            backgroundColor: "rgb(209,15,23)",
+                            color: "white",
+                            fontWeight: "bold",
+                          },
+                        }}
+                      >
+                        <Paper
+                          elevation={2}
+                          sx={{
+                            width: "100%",
+                            minHeight: 100,
+                            maxHeight: 100,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            cursor: "pointer",
+                            backgroundColor: "rgb(209,15,23)",
+                            p: 1,
+                            borderRadius: 2,
+                          }}
+                          onClick={() => {
+                            setOrder({ ...order, name: waiter.name });
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            fontWeight="bold"
+                            sx={{ color: "#fff" }}
+                          >
+                            {waiter.name}
+                          </Typography>
+                        </Paper>
+                      </Badge>
+                    </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </>
+        )) ||
+          null}
+        {(order.name && !order.table && (
+          <>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="h4" fontWeight="bold">
+                Selecciona la mesa
+              </Typography>
+            </Grid>
+            <Grid
+              container
+              sx={{
+                maxHeight: "50vh",
+                minHeight: "50vh",
+                overflowY: "auto",
+                p: 2,
+              }}
+              spacing={4}
+            >
+              {tables.map((table) => (
+                <Grid
+                  size={{ xs: 6 }}
+                  key={table.number}
+                  sx={{ minHeight: 100 }}
+                >
+                  <Box width="100%" sx={{ minHeight: 100 }}>
+                    <Paper
+                      elevation={2}
+                      sx={{
+                        width: "100%",
+                        minHeight: 100,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        backgroundColor: "rgb(209,15,23)",
+                      }}
+                      onClick={() =>
+                        setOrder({ ...order, table: table.number })
+                      }
+                    >
+                      <Typography
+                        variant="h3"
+                        fontWeight="bold"
+                        sx={{
+                          color: "#fff",
+                        }}
+                      >
+                        {table.number}
+                      </Typography>
+                    </Paper>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )) ||
+          null}
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        {(order.table && (
+          <>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="h4" fontWeight="bold">
+                ¿Comentarios?
+              </Typography>
+            </Grid>
+
+            <Grid
+              container
+              sx={{
+                maxHeight: "50vh",
+                minHeight: "50vh",
+                p: 2,
+              }}
+              spacing={4}
+            >
+              <Grid size={{ xs: 12 }}>
+                <Box sx={{ width: "100%" }}>
+                  <TextField
+                    label="Notas"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{ sx: { borderRadius: 5, boxShadow: 2 } }}
+                    onChange={(e) =>
+                      setOrder({ ...order, notes: e.target.value })
+                    }
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+          </>
+        )) ||
+          null}
       </Grid>
       <Grid
         size={{ xs: 12 }}
