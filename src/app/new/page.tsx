@@ -106,10 +106,7 @@ const Home = () => {
                   (o) => o.name === waiter.name && o.active
                 );
                 return (
-                  <Grid
-                    size={{ xs: 6 }}
-                    key={waiter._id}
-                  >
+                  <Grid size={{ xs: 6 }} key={waiter._id}>
                     <Box width="100%" sx={{ minHeight: 40 }}>
                       <Badge
                         badgeContent={ownOrders.length}
@@ -175,42 +172,50 @@ const Home = () => {
               }}
               spacing={4}
             >
-              {tables.map((table) => (
-                <Grid
-                  size={{ xs: 6 }}
-                  key={table.number}
-                  sx={{ minHeight: 100 }}
-                >
-                  <Box width="100%" sx={{ minHeight: 100 }}>
-                    <Paper
-                      elevation={2}
-                      sx={{
-                        width: "100%",
-                        minHeight: 100,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textAlign: "center",
-                        cursor: "pointer",
-                        backgroundColor: "rgb(209,15,23)",
-                      }}
-                      onClick={() =>
-                        setOrder({ ...order, table: table.number })
-                      }
-                    >
-                      <Typography
-                        variant="h3"
-                        fontWeight="bold"
+              {tables
+                .sort((a, b) => {
+                  if (a.number.toLowerCase() === "barra") return -1;
+                  if (b.number.toLowerCase() === "barra") return 1;
+                  return Number(a.number) - Number(b.number);
+                })
+                .map((table) => (
+                  <Grid
+                    size={{
+                      xs: table.number.toLowerCase() === "barra" ? 12 : 6,
+                    }}
+                    key={table.number}
+                    sx={{ minHeight: 100 }}
+                  >
+                    <Box width="100%" sx={{ minHeight: 100 }}>
+                      <Paper
+                        elevation={2}
                         sx={{
-                          color: "#fff",
+                          width: "100%",
+                          minHeight: 100,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textAlign: "center",
+                          cursor: "pointer",
+                          backgroundColor: "rgb(209,15,23)",
                         }}
+                        onClick={() =>
+                          setOrder({ ...order, table: table.number })
+                        }
                       >
-                        {table.number}
-                      </Typography>
-                    </Paper>
-                  </Box>
-                </Grid>
-              ))}
+                        <Typography
+                          variant="h3"
+                          fontWeight="bold"
+                          sx={{
+                            color: "#fff",
+                          }}
+                        >
+                          {table.number}
+                        </Typography>
+                      </Paper>
+                    </Box>
+                  </Grid>
+                ))}
             </Grid>
           </>
         )) ||
