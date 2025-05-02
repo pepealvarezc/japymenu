@@ -20,10 +20,10 @@ export async function POST(
     if (order) {
       const url = order.active
         ? `${
-            PRINTER_SERVER || "https://512f-187-154-215-204.ngrok-free.app/"
+            PRINTER_SERVER || "https://b183-189-141-23-34.ngrok-free.app/"
           }/print`
         : `${
-            PRINTER_SERVER || "https://512f-187-154-215-204.ngrok-free.app/"
+            PRINTER_SERVER || "https://b183-189-141-23-34.ngrok-free.app/"
           }/print/bill`;
       axios.post(
         url,
