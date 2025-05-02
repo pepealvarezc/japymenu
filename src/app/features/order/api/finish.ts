@@ -6,7 +6,7 @@ export const finishOrder = async (
   order: Order
 ): Promise<{ success: boolean; id: string }> => {
   await axios.post(
-    `https://512f-187-154-215-204.ngrok-free.app/print/bill`,
+    `https://b183-189-141-23-34.ngrok-free.app/print/bill`,
     {
       id: order._id,
       table: order?.table,
