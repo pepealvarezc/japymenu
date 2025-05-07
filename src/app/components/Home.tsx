@@ -72,6 +72,25 @@ const Home = () => {
           {`Ver Ordenes ${activeOrders ? `(${activeOrders})` : ""}`}
         </Button>
       </Grid>
+      <Grid size={{ xs: 12 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{
+            borderColor: "rgb(209,15,23)",
+            backgroundColor: "rgb(209,15,23)",
+            color: "white",
+            borderRadius: 20,
+            padding: 2,
+            fontWeight: "bold",
+            fontSize: "18px",
+            textTransform: "none",
+          }}
+          onClick={() => router.push("/settings")}
+        >
+          Configuración
+        </Button>
+      </Grid>
       <Grid
         size={{ xs: 12 }}
         sx={{ position: "absolute", bottom: 0, textAlign: "end", mr: 5 }}
